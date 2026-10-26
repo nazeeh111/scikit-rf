@@ -8467,6 +8467,9 @@ def passivity(s: np.ndarray) -> np.ndarray:
     .. [#] http://en.wikipedia.org/wiki/Scattering_parameters#Lossless_networks
     """
     pas_mat = s.copy()
+    if s.shape[1:] == (1, 1):
+        pas_mat[:] = np.abs(s)
+        return pas_mat
     for f in range(len(s)):
         pas_mat[f, :, :] = np.sqrt(np.dot(s[f, :, :].conj().T, s[f, :, :]))
 
