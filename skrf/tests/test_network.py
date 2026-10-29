@@ -2408,6 +2408,18 @@ class NetworkTestCase(unittest.TestCase):
         self.assertEqual(p_2port.shape, (1, 2, 2))
         np.testing.assert_allclose(p_2port.real, [[[0.5, 0.0], [0.0, 0.5]]])
         np.testing.assert_allclose(p_2port.imag, 0.0)
+
+    def test_one_port_passivity_preserves_real_magnitude_and_input(self):
+        for dtype, scale in ((np.complex64, 1e20), (np.complex128, 1e200)):
+            with self.subTest(dtype=dtype):
+                s = np.array([0.3 + 0.4j, -0.6 + 0.8j,
+                              scale + scale * 1j, 1 / scale + 1j / scale], dtype=dtype).reshape(-1, 1, 1)
+                before = s.copy()
+                actual = rf.network.passivity(s)
+                self.assertEqual(actual.dtype, s.dtype)
+                np.testing.assert_array_equal(actual.real, np.abs(s))
+                np.testing.assert_array_equal(actual.imag, 0.0)
+                np.testing.assert_array_equal(s, before)
         return
 
     def test_is_passive(self):
